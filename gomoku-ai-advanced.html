@@ -1,511 +1,364 @@
+Ch ROTHANAK, [5/6/2026 10:37 PM]
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Gomoku 25×25 - Advanced AI</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚡ NEURAL-LINK GOMOKU</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;background:#09090f;color:#e2e8f0;font-family:'Outfit',sans-serif}
-body{display:flex;flex-direction:column}
-#hdr{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#0f0f1c;border-bottom:1px solid #1e1e35;gap:8px}
-.pi{display:flex;align-items:center;gap:8px}
-.dot{width:8px;height:8px;border-radius:50%;background:#f43f5e;transition:background .3s;flex-shrink:0}
-#smsg{font-size:.82rem;font-weight:700;color:#f43f5e;transition:color .3s}
-.sco{display:flex;gap:10px}
-.si{text-align:center;min-width:32px}
-.sl{font-size:.6rem;color:#475569;text-transform:uppercase;letter-spacing:.8px}
-.sv{font-size:.95rem;font-weight:700}
-.sx{color:#f43f5e}.so{color:#06b6d4}.sd{color:#475569}
-#vp{flex:1;overflow:hidden;position:relative;touch-action:none;cursor:grab;background:#09090f}
-#vp:active{cursor:grabbing}
-#bt{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
-#board{display:grid;grid-template-columns:repeat(25,28px);gap:2px}
-.cell{width:28px;height:28px;background:#131322;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:1px solid #1c1c30;transition:background .2s,border-color .2s;cursor:pointer}
-.cell:hover{background:#1c1c35}
-.xc{color:#f43f5e}.oc{color:#06b6d4}
-.lm{border-color:#7c3aed!important}
-.wc{background:#2d1600!important;border-color:#fbbf24!important;animation:wp .6s ease-in-out infinite alternate}
-@keyframes wp{from{box-shadow:0 0 4px #fbbf2488}to{box-shadow:0 0 14px #fbbf24}}
-@keyframes pop{0%{transform:scale(0);opacity:0}70%{transform:scale(1.3)}100%{transform:scale(1);opacity:1}}
-.pop{animation:pop .18s ease-out forwards}
-#ftr{flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;background:#0f0f1c;border-top:1px solid #1e1e35}
-.btn{padding:10px 18px;border-radius:10px;border:none;font-family:'Outfit',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .18s;min-height:44px;min-width:44px}
-.bp{background:linear-gradient(135deg,#7c3aed,#9f67ff);color:#fff;box-shadow:0 3px 10px #7c3aed44}
-.bp:active{transform:scale(.94)}
-.bs{background:#17172a;border:1px solid #252540;color:#94a3b8}
-.bs:active{transform:scale(.94)}
-.sel{background:#17172a;border:1px solid #252540;color:#e2e8f0;padding:10px 12px;border-radius:10px;font-family:'Outfit',sans-serif;font-size:.8rem;min-height:44px;outline:none;cursor:pointer}
-#ovl{position:fixed;inset:0;background:#000000bb;display:flex;align-items:center;justify-content:center;z-index:99;opacity:0;pointer-events:none;transition:opacity .3s}
-#ovl.show{opacity:1;pointer-events:all}
-.rc{background:#0f0f1c;border:1px solid #1e1e35;border-radius:20px;padding:28px 36px;text-align:center;transform:scale(.85);transition:transform .3s;max-width:280px;width:90%}
-#ovl.show .rc{transform:scale(1)}
-.re{font-size:2.6rem}.rt{font-size:1.5rem;font-weight:900;margin:8px 0 4px}.rs{color:#475569;font-size:.84rem;margin-bottom:18px}
-#tb{position:fixed;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7c3aed,#06b6d4);transform-origin:left;transform:scaleX(0);transition:transform .4s;z-index:50}
+  :root {
+    --bg: #020617;
+    --panel: rgba(15, 23, 42, 0.8);
+    --accent: #06b6d4;
+    --player: #22c55e;
+    --ai: #ef4444;
+    --glass: rgba(255, 255, 255, 0.05);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Rajdhani', sans-serif;
+    background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+    color: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Cyberpunk HUD Decor */
+  body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(10, 15, 31, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+    background-size: 100% 4px, 3px 100%;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .main-container {
+    display: flex;
+    gap: 30px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    z-index: 5;
+  }
+
+  /* Left Panel: Stats */
+  .side-panel {
+    width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .stat-card {
+    background: var(--panel);
+    border: 1px solid var(--glass);
+    padding: 15px;
+    border-left: 4px solid var(--accent);
+    border-radius: 4px;
+  }
+
+  .stat-label { font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+  .stat-value { font-size: 20px; font-weight: bold; font-family: 'Orbitron', sans-serif; }
+
+  /* Board Styling */
+  #board {
+    display: grid;
+    grid-template-columns: repeat(15, 1fr);
+    gap: 3px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+    width: 600px;
+    height: 600px;
+  }
+
+  .cell {
+    background: rgba(30, 41, 59, 0.5);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .cell:hover { background: rgba(51, 65, 85, 0.8); transform: scale(1.05); z-index: 2; }
+
+  /* Pieces */
+  .p1::after {
+    content: ''; width: 75%; height: 75%; border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #4ade80, #166534);
+    box-shadow: 0 0 15px var(--player);
+    animation: dropIn 0.3s ease-out;
+  }
+  .p2::after {
+    content: ''; width: 75%; height: 75%; border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #f87171, #991b1b);
+    box-shadow: 0 0 15px var(--ai);
+    animation: dropIn 0.3s ease-out;
+  }
+
+  @keyframes dropIn { from { transform: scale(3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  /* Heatmap Overlays */
+  .cell.danger { box-shadow: inset 0 0 10px rgba(239, 68, 68, 0.6); background: rgba(127, 29, 29, 0.2); }
+  .cell.hint { box-shadow: inset 0 0 10px rgba(34, 197, 94, 0.3); }
+
+  .header { margin-bottom: 20px; text-align: left; width: 100%; max-width: 850px; }
+  h1 { 
+    margin: 0; font-family: 'Orbitron', sans-serif; font-size: 28px; 
+    text-shadow: 0 0 10px var(--accent); color: var(--accent);
+  }
+
+  .controls { margin-top: 20px; display: flex; gap: 15px; }
+  button {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 10px 25px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  button:hover { background: var(--accent); color: white; box-shadow: 0 0 20px var(--accent); }
+
+Ch ROTHANAK, [5/6/2026 10:37 PM]
+#log {
+    height: 150px;
+    background: rgba(0,0,0,0.3);
+    padding: 10px;
+    font-size: 12px;
+    overflow-y: auto;
+    font-family: monospace;
+    color: #94a3b8;
+    border: 1px solid var(--glass);
+  }
 </style>
 </head>
 <body>
-<div id="hdr">
-  <div class="pi">
-    <div class="dot" id="dot"></div>
-    <span id="smsg">Your turn</span>
-  </div>
-  <div class="sco">
-    <div class="si"><div class="sl">You</div><div class="sv sx" id="sx">0</div></div>
-    <div class="si"><div class="sl">Draw</div><div class="sv sd" id="sd">0</div></div>
-    <div class="si"><div class="sl">AI</div><div class="sv so" id="so">0</div></div>
-  </div>
+
+<div class="header">
+  <h1>NEURAL NET: CORE_GOMOKU_v4.2</h1>
+  <div style="color: #64748b; font-size: 14px;">QUANTUM THREAT DETECTION ACTIVE</div>
 </div>
-<div id="vp"><div id="bt"><div id="board"></div></div></div>
-<div id="ftr">
-  <select class="sel" id="diff"><option value="3">★★★ Extreme</option><option value="2">★★ Hard</option><option value="1">★ Medium</option></select>
-  <button class="btn bp" id="rbtn">↺ New</button>
-  <button class="btn bs" id="zbtn">⌖ Fit</button>
+
+<div class="main-container">
+  <div class="side-panel">
+    <div class="stat-card">
+      <div class="stat-label">System Status</div>
+      <div class="stat-value" id="status" style="color: var(--player);">ONLINE</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">AI Logic Load</div>
+      <div class="stat-value" id="ai-load">0.00%</div>
+    </div>
+    <div class="stat-card" style="flex-grow: 1;">
+      <div class="stat-label">Action Log</div>
+      <div id="log"></div>
+    </div>
+    <button onclick="resetGame()">System Reset</button>
+  </div>
+
+  <div id="board"></div>
 </div>
-<div id="ovl"><div class="rc"><div class="re" id="re"></div><div class="rt" id="rt"></div><div class="rs" id="rs"></div><button class="btn bp" onclick="newGame()">Play Again</button></div></div>
-<div id="tb"></div>
 
 <script>
-const N=25,W=5,CS=28,GP=2,SZ=CS+GP;
-const BP=N*CS+(N-1)*GP;
-let board,turn,over,lm=-1,sc={X:0,O:0,D:0},P={};
-let zoom=1,panX=0,panY=0;
-const $=id=>document.getElementById(id);
-const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
-const rf=(a,b)=>Math.random()*(b-a)+a;
-const IX=(r,c)=>r*N+c;
-const DIRS=[[0,1],[1,0],[1,1],[1,-1]];
+const N = 15;
+const WIN = 5;
+const EMPTY = 0, PLAYER = 1, AI = 2;
+let grid = [];
+let gameOver = false;
 
-function applyT(){$('bt').style.transform=`translate(${panX}px,${panY}px) scale(${zoom})`;}
+const WEIGHTS = {
+  FIVE: 1000000,
+  FOUR_OPEN: 50000,
+  FOUR_BLOCKED: 5000,
+  THREE_OPEN: 3000,
+  THREE_BLOCKED: 500,
+  TWO_OPEN: 100,
+  ADJACENT: 10
+};
 
-function fitBoard(){
-  const vp=$('vp'),vw=vp.clientWidth,vh=vp.clientHeight;
-  zoom=Math.min(vw/(BP+4),vh/(BP+4));
-  panX=(vw-BP*zoom)/2; panY=(vh-BP*zoom)/2;
-  applyT();
-}
-
-function rollP(d){
-  P={d,
-    defW:d===3?rf(7,11):d===2?rf(4,7):rf(2,4),
-    offW:d===3?rf(1,2):d===2?rf(1,2.5):rf(1,3),
-    noise:d===3?ri(10,45):d===2?ri(30,80):ri(60,150),
-    rnd:d===3?rf(.02,.07):d===2?rf(.05,.13):rf(.1,.24),
-    cBias:rf(.7,1.8)
-  };
-}
-
-function newGame(){
-  board=new Array(N*N).fill(null);turn='X';over=false;lm=-1;
-  $('ovl').classList.remove('show');
-  rollP(parseInt($('diff').value));
-  const b=$('board');b.innerHTML='';
-  for(let i=0;i<N*N;i++){const c=document.createElement('div');c.className='cell';c.id='c'+i;b.appendChild(c);}
-  fitBoard();upd();
-}
-
-function place(i,p){
-  board[i]=p;lm=i;
-  const el=$('c'+i);
-  el.textContent=p==='X'?'✕':'○';
-  el.classList.add(p==='X'?'xc':'oc','pop');
-  document.querySelectorAll('.lm').forEach(e=>e.classList.remove('lm'));
-  el.classList.add('lm');
-}
-
-function winOf(pos,p){
-  const r0=Math.floor(pos/N),c0=pos%N;
-  for(const [dr,dc]of DIRS){
-    let arr=[pos];
-    for(let s=1;s<W;s++){const r=r0+dr*s,c=c0+dc*s;if(r<0||r>=N||c<0||c>=N||board[IX(r,c)]!==p)break;arr.push(IX(r,c));}
-    for(let s=1;s<W;s++){const r=r0-dr*s,c=c0-dc*s;if(r<0||r>=N||c<0||c>=N||board[IX(r,c)]!==p)break;arr.push(IX(r,c));}
-    if(arr.length>=W)return arr;
-  }return null;
-}
-
-function checkEnd(){
-  if(lm<0)return false;
-  const p=board[lm],w=winOf(lm,p);
-  if(w){w.forEach(i=>$('c'+i).classList.add('wc'));end(p==='X'?'win':'lose');return true;}
-  if(board.every(Boolean)){end('draw');return true;}
-  return false;
-}
-
-function end(r){
-  over=true;
-  $('re').textContent=r==='win'?'🎉':r==='lose'?'😤':'🤝';
-  $('rt').textContent=r==='win'?'You Win!':r==='lose'?'AI Wins!':'Draw!';
-  $('rs').textContent=r==='win'?'Incredible — you beat the AI!':r==='lose'?'The AI wins this round.':'Board full — no winner.';
-  if(r==='win'){sc.X++;$('sx').textContent=sc.X;}
-  else if(r==='lose'){sc.O++;$('so').textContent=sc.O;}
-  else{sc.D++;$('sd').textContent=sc.D;}
-  setTimeout(()=>$('ovl').classList.add('show'),700);
-}
-
-function upd(){
-  if(over)return;
-  const isX=turn==='X';
-  $('dot').style.background=isX?'#f43f5e':'#06b6d4';
-  $('smsg').style.color=isX?'#f43f5e':'#06b6d4';
-  $('smsg').textContent=isX?'Your turn':'AI thinking…';
-}
-
-// ── Touch: pan + pinch zoom ──────────────────────────────────────────────────
-let ts=null,pd=0,pm=null,dragged=false;
-const vp=$('vp');
-
-function coordToCell(cx,cy){
-  const r=vp.getBoundingClientRect();
-  const bx=(cx-r.left-panX)/zoom, by=(cy-r.top-panY)/zoom;
-  const col=Math.floor(bx/SZ), row=Math.floor(by/SZ);
-  return(col>=0&&col<N&&row>=0&&row<N)?row*N+col:-1;
-}
-
-vp.addEventListener('touchstart',e=>{
-  e.preventDefault();
-  if(e.touches.length===2){
-    ts=null;
-    pd=Math.hypot(e.touches[1].clientX-e.touches[0].clientX,e.touches[1].clientY-e.touches[0].clientY);
-    pm={x:(e.touches[0].clientX+e.touches[1].clientX)/2,y:(e.touches[0].clientY+e.touches[1].clientY)/2};
-  }else if(e.touches.length===1){
-    ts={x:e.touches[0].clientX,y:e.touches[0].clientY};dragged=false;
+function initBoard() {
+  const boardEl = document.getElementById('board');
+  boardEl.innerHTML = '';
+  grid = Array(N * N).fill(EMPTY);
+  for (let i = 0; i < N * N; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.onclick = () => playerMove(i);
+    boardEl.appendChild(cell);
   }
-},{passive:false});
-
-vp.addEventListener('touchmove',e=>{
-  e.preventDefault();
-  if(e.touches.length===2&&pd>0){
-    const nd=Math.hypot(e.touches[1].clientX-e.touches[0].clientX,e.touches[1].clientY-e.touches[0].clientY);
-    const nm={x:(e.touches[0].clientX+e.touches[1].clientX)/2,y:(e.touches[0].clientY+e.touches[1].clientY)/2};
-    const minZ=Math.min(vp.clientWidth,vp.clientHeight)/(BP+4)*.4;
-    const nz=Math.max(minZ,Math.min(5,zoom*(nd/pd)));
-    const vr=vp.getBoundingClientRect();
-    const ox=pm.x-vr.left, oy=pm.y-vr.top;
-    panX=ox-(ox-panX)*nz/zoom; panY=oy-(oy-panY)*nz/zoom;
-    panX+=nm.x-pm.x; panY+=nm.y-pm.y;
-    zoom=nz; pd=nd; pm=nm; applyT();
-  }else if(e.touches.length===1&&ts){
-    const dx=e.touches[0].clientX-ts.x, dy=e.touches[0].clientY-ts.y;
-    if(!dragged&&Math.hypot(dx,dy)>6)dragged=true;
-    if(dragged){panX+=dx;panY+=dy;ts={x:e.touches[0].clientX,y:e.touches[0].clientY};applyT();}
-  }
-},{passive:false});
-
-vp.addEventListener('touchend',e=>{
-  if(!dragged&&ts&&e.changedTouches.length){
-    const t=e.changedTouches[0];
-    if(Math.hypot(t.clientX-ts.x,t.clientY-ts.y)<10)hMove(coordToCell(ts.x,ts.y));
-  }
-  if(e.touches.length===0){ts=null;pd=0;}
-});
-
-let mst=null,mdr=false;
-vp.addEventListener('mousedown',e=>{mst={x:e.clientX,y:e.clientY};mdr=false;});
-vp.addEventListener('mousemove',e=>{if(!mst)return;if(!mdr&&Math.hypot(e.clientX-mst.x,e.clientY-mst.y)>5)mdr=true;if(mdr){panX+=e.movementX;panY+=e.movementY;applyT();}});
-vp.addEventListener('mouseup',e=>{if(!mdr&&mst)hMove(coordToCell(e.clientX,e.clientY));mst=null;});
-vp.addEventListener('wheel',e=>{e.preventDefault();const nz=Math.max(.2,Math.min(5,zoom*(1-e.deltaY*.001)));const r=vp.getBoundingClientRect();const ox=e.clientX-r.left,oy=e.clientY-r.top;panX=ox-(ox-panX)*nz/zoom;panY=oy-(oy-panY)*nz/zoom;zoom=nz;applyT();});
-
-// ── Human move ──────────────────────────────────────────────────────────────
-function hMove(i){
-  if(over||turn!=='X'||i<0||board[i])return;
-  if(navigator.vibrate)navigator.vibrate(30);
-  place(i,'X');if(checkEnd())return;
-  turn='O';upd();
-  $('tb').style.transform='scaleX(.4)';
-  setTimeout(doAI,ri(100,300));
+  gameOver = false;
+  addLog("Neural Link established...");
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-// ═══════════════════════ ADVANCED AI ENGINE ══════════════════════════════════
-// ════════════════════════════════════════════════════════════════════════════
-// STRICT DEFENSIVE-FIRST, TRAP-AWARE, NEVER-LOSE SYSTEM
-
-// 1. GET LINE DATA: Count consecutive + blocked ends in one direction
-function getLineData(idx,dr,dc,player){
-  const r0=Math.floor(idx/N),c0=idx%N;
-  let count=1,blocks=0;
-  for(let s=1;s<N;s++){
-    const r=r0+dr*s,c=c0+dc*s;
-    if(r<0||r>=N||c<0||c>=N){blocks++;break;}
-    const v=board[IX(r,c)];
-    if(v===player)count++;
-    else if(!v)break;
-    else{blocks++;break;}
-  }
-  for(let s=1;s<N;s++){
-    const r=r0-dr*s,c=c0-dc*s;
-    if(r<0||r>=N||c<0||c>=N){blocks++;break;}
-    const v=board[IX(r,c)];
-    if(v===player)count++;
-    else if(!v)break;
-    else{blocks++;break;}
-  }
-  return{count,blocks};
+function addLog(msg) {
+  const log = document.getElementById('log');
+  log.innerHTML += <div>> ${msg}</div>;
+  log.scrollTop = log.scrollHeight;
 }
 
-// 2. SCORE LINE: Blocks-based scoring (strictest 2-in-a-row block)
-function scoreLine(count,blocks){
-  if(count>=5)return 1000000;
-  if(blocks===2)return 0; // fully blocked
-  if(count===4)return blocks===0?80000:10000;
-  if(count===3)return blocks===0?15000:2000;
-  if(count===2)return blocks===0?5000:800; // 🚨 STRICT 2-IN-A-ROW BLOCK
-  return 0;
+function playerMove(idx) {
+  if (grid[idx] !== EMPTY || gameOver) return;
+  
+  makeMove(idx, PLAYER);
+  if (checkWin(idx, PLAYER)) return endGame("CRITICAL FAILURE: AI LOST");
+  
+  document.getElementById('status').textContent = "CALCULATING";
+  document.getElementById('status').style.color = "var(--ai)";
+  
+  const startTime = performance.now();
+  setTimeout(() => {
+    aiTurn();
+    const timeTaken = (performance.now() - startTime).toFixed(2);
+    document.getElementById('ai-load').textContent = timeTaken + "ms";
+  }, 100);
 }
 
-// 3. CELL PRESSURE: Total threat score for player at position
-function calcPressure(idx,player){
-  board[idx]=player;
-  let score=0;
-  for(const [dr,dc]of DIRS){
-    const ld=getLineData(idx,dr,dc,player);
-    score+=scoreLine(ld.count,ld.blocks);
-  }
-  board[idx]=null;
-  return score;
+function aiTurn() {
+  if (gameOver) return;
+  const move = getBestMove();
+  makeMove(move, AI);
+  addLog(Counter-move at [${Math.floor(move/N)},${move%N}]);
+  
+  if (checkWin(move, AI)) return endGame("TERMINAL STATE: AI WON");
+  
+  visualizeMindMap();
+  document.getElementById('status').textContent = "WAITING";
+  document.getElementById('status').style.color = "var(--player)";
 }
 
-// 4. WINDOW SCORING: Split-pattern aware evaluation
-function windowScore(cells,p){
-  let cnt=0,open=0,pos=[];
-  for(let k=0;k<cells.length;k++){
-    const v=cells[k];
-    if(v===p){cnt++;pos.push(k);}
-    else if(v===null)open++;
-    else return 0;
-  }
-  if(!cnt||!open)return 0;
-  const spread=pos.length>=2?pos[pos.length-1]-pos[0]:0;
-  const isSplit=pos.length>=2&&spread<W-1&&open>0&&cnt<spread+1;
-  if(cnt===4)return open>=1?8e6:0;
-  if(cnt===3)return open===2?5e4:1e4;
-  if(cnt===2){if(isSplit)return 300;return open===2?400:250;}
-  if(cnt===1)return open===2?30:10;
-  return 0;
+function makeMove(idx, p) {
+  grid[idx] = p;
+  const cells = document.querySelectorAll('.cell');
+  cells[idx].classList.add(p === PLAYER ? 'p1' : 'p2');
 }
 
-// 5. EVAL AT: Window-based full evaluation
-function evalAt(pos,p){
-  board[pos]=p;let score=0;
-  const r0=Math.floor(pos/N),c0=pos%N;
-  for(const [dr,dc]of DIRS){
-    for(let s=-(W-1);s<=0;s++){
-      const cells=[];let ok=true;
-      for(let k=s;k<s+W;k++){
-        const r=r0+dr*k,c=c0+dc*k;
-        if(r<0||r>=N||c<0||c>=N){ok=false;break;}
-        cells.push(board[IX(r,c)]);
-      }
-      if(ok)score+=windowScore(cells,p);
+function getBestMove() {
+  let bestScore = -Infinity;
+  let move = -1;
+  const scores = evaluateFullBoard();
+
+  for (let i = 0; i < N * N; i++) {
+    if (grid[i] === EMPTY && scores[i] > bestScore) {
+      bestScore = scores[i];
+      move = i;
     }
   }
-  board[pos]=null;return score;
+  return move;
 }
 
-// 6. CANDIDATE CELLS: Cells within radius 2 of any placed piece
-function cands(){
-  const s=new Set();
-  for(let i=0;i<N*N;i++){
-    if(!board[i])continue;
-    const r=Math.floor(i/N),c=i%N;
-    for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++){
-      if(!dr&&!dc)continue;const nr=r+dr,nc=c+dc;
-      if(nr>=0&&nr<N&&nc>=0&&nc<N&&!board[IX(nr,nc)])s.add(IX(nr,nc));
-    }
-  }
-  if(!s.size)return[IX(12+ri(-3,3),12+ri(-3,3))];
-  return[...s];
-}
-
-// 7. TRAP DETECTION: Player creates 2+ separate threats (fork)
-function createsPlayerFork(idx){
-  board[idx]='X';
-  let threatCount=0;
-  for(const [dr,dc]of DIRS){
-    const ld=getLineData(idx,dr,dc,'X');
-    if(ld.count>=3&&ld.blocks<2)threatCount++;
-  }
-  board[idx]=null;
-  return threatCount>=2;
-}
-
-// 8. DANGEROUS MOVE: Placing AI here allows player to fork nearby
-function isDangerousMove(idx){
-  board[idx]='O';
-  let dangerous=false;
-  const r0=Math.floor(idx/N),c0=idx%N;
-  outer:for(let dr=-3;dr<=3;dr++)for(let dc=-3;dc<=3;dc++){
-    const nr=r0+dr,nc=c0+dc;
-    if(nr<0||nr>=N||nc<0||nc>=N)continue;
-    const ni=IX(nr,nc);
-    if(board[ni])continue;
-    if(createsPlayerFork(ni)){dangerous=true;break outer;}
-  }
-  board[idx]=null;
-  return dangerous;
-}
-
-// 9. DETECT SPLIT PATTERNS: X_X type threats
-function hasSplitPattern(idx,player){
-  board[idx]=player;
-  let hasSplit=false;
-  const r0=Math.floor(idx/N),c0=idx%N;
-  for(const [dr,dc]of DIRS){
-    for(let s=-(W-1);s<=0;s++){
-      let pattern='';let ok=true;
-      for(let k=s;k<s+W;k++){
-        const r=r0+dr*k,c=c0+dc*k;
-        if(r<0||r>=N||c<0||c>=N){ok=false;break;}
-        const v=board[IX(r,c)];
-        pattern+=v===player?'X':v?'B':'_';
-      }
-      if(ok&&(pattern.includes('X_X')||pattern.includes('X__X')))hasSplit=true;
-    }
-  }
-  board[idx]=null;
-  return hasSplit;
-}
-
-// 10. LOOKAHEAD SAFETY: Ensure 1-2 moves ahead AI can block
-function isSafeMove(idx){
-  board[idx]='O';
-  let safe=true;
-  const r0=Math.floor(idx/N),c0=idx%N;
-  outer:for(let dr=-4;dr<=4;dr++)for(let dc=-4;dc<=4;dc++){
-    const nr=r0+dr,nc=c0+dc;
-    if(nr<0||nr>=N||nc<0||nc>=N)continue;
-    const ni=IX(nr,nc);
-    if(board[ni])continue;
-    board[ni]='X';
-    if(winOf(ni,'X')){safe=false;board[ni]=null;break outer;}
-    board[ni]=null;
-  }
-  board[idx]=null;
-  return safe;
-}
-
-// 11. FULL BOARD EVALUATION: Calculate FINAL_SCORE for all cells
-function evaluateFullBoard(cl){
-  const heatmap=[];
-  for(const i of cl){
-    // AI_POWER_SCORE
-    const aiScore=calcPressure(i,'O');
-    
-    // PLAYER_THREAT_SCORE (DEFENSE 2.5× multiplier)
-    const playerScore=calcPressure(i,'X');
-    
-    let finalScore=aiScore+(playerScore*2.5);
-    
-    // CENTER_BONUS: Closer to center = higher score
-    const r=Math.floor(i/N),c=i%N;
-    const distFromCenter=Math.abs(N/2-r)+Math.abs(N/2-c);
-    const centerBonus=(N/2-distFromCenter)*1.2;
-    finalScore+=centerBonus;
-    
-    // TRAP_PENALTY: Split patterns or fork risk
-    if(createsPlayerFork(i))finalScore-=30000;
-    if(isDangerousMove(i))finalScore-=40000;
-    if(hasSplitPattern(i,'X'))finalScore-=20000;
-    
-    // Per-game noise
-    finalScore+=(Math.random()*2-1)*P.noise;
-    
-    heatmap.push([i,finalScore]);
+function evaluateFullBoard() {
+  let heatmap = Array(N * N).fill(0);
+  for (let i = 0; i < N * N; i++) {
+    if (grid[i] !== EMPTY) continue;
+    let aiScore = calculateCellPressure(i, AI);
+    let playerScore = calculateCellPressure(i, PLAYER);
+    heatmap[i] = aiScore + (playerScore * 1.3); // High priority on defense
+    const r = Math.floor(i / N), c = i % N;
+    heatmap[i] += (7 - Math.abs(7 - r)) + (7 - Math.abs(7 - c));
   }
   return heatmap;
 }
 
-// 12. MAIN AI PICKER: Strict priority cascade
-function aiPick(){
-  const cl=cands();
-  if(cl.length===1)return cl[0];
-
-  // ───────────────────────────────────────────────────────────────────────────
-  // PRIORITY 1: AI WINS IMMEDIATELY
-  // ───────────────────────────────────────────────────────────────────────────
-  for(const i of cl){
-    board[i]='O';
-    const w=winOf(i,'O');
-    board[i]=null;
-    if(w)return i;
+function calculateCellPressure(idx, p) {
+  let total = 0;
+  const dirs = [[1,0], [0,1], [1,1], [1,-1]];
+  for (let [dr, dc] of dirs) {
+    let line = getLineData(idx, dr, dc, p);
+    total += scoreLine(line.count, line.blocks);
   }
-
-  // ───────────────────────────────────────────────────────────────────────────
-  // PRIORITY 2: BLOCK PLAYER IMMEDIATE WIN (5-in-a-row)
-  // ───────────────────────────────────────────────────────────────────────────
-  for(const i of cl){
-    board[i]='X';
-    const w=winOf(i,'X');
-    board[i]=null;
-    if(w)return i;
-  }
-
-  // ───────────────────────────────────────────────────────────────────────────
-  // PRIORITY 3: BLOCK OPEN-4 (Player guaranteed win next turn)
-  // ───────────────────────────────────────────────────────────────────────────
-  const blockOpen4=cl.filter(i=>evalAt(i,'X')>=8e6);
-  if(blockOpen4.length){
-    blockOpen4.sort((a,b)=>calcPressure(b,'O')-calcPressure(a,'O'));
-    return blockOpen4[0];
-  }
-
-  // ───────────────────────────────────────────────────────────────────────────
-  // PRIORITY 4: BLOCK STRICT 2-IN-A-ROW IMMEDIATELY
-  // 🚨 RULE: If player has ANY X X or X_X pattern, AI MUST block instantly
-  // ───────────────────────────────────────────────────────────────────────────
-  let strictBlock=-1;
-  let maxBlockScore=-Infinity;
-  for(const i of cl){
-    board[i]='X';
-    for(const [dr,dc]of DIRS){
-      const ld=getLineData(i,dr,dc,'X');
-      if(ld.count===2&&ld.blocks<2){
-        const blockScore=calcPressure(i,'X');
-        if(blockScore>maxBlockScore){
-          maxBlockScore=blockScore;
-          strictBlock=i;
-        }
-      }
-    }
-    board[i]=null;
-  }
-  if(strictBlock>=0)return strictBlock;
-
-  // ───────────────────────────────────────────────────────────────────────────
-  // PRIORITY 5: FULL BOARD HEATMAP EVALUATION
-  // ───────────────────────────────────────────────────────────────────────────
-  const heatmap=evaluateFullBoard(cl);
-  heatmap.sort((a,b)=>b[1]-a[1]);
-
-  // Safe-move filter: Ensure AI move doesn't hand player a free win
-  for(let t=0;t<Math.min(8,heatmap.length);t++){
-    const [mv]=heatmap[t];
-    if(isSafeMove(mv)){
-      // Occasional randomness: pick from top 5 near-equal moves
-      if(t===0&&Math.random()<P.rnd&&heatmap.length>4){
-        const top=heatmap[0][1];
-        const pool=heatmap.slice(0,Math.min(5,heatmap.length)).filter(([,s])=>s>=top*.92);
-        return pool[ri(0,pool.length-1)][0];
-      }
-      return mv;
-    }
-  }
-
-  // Fallback: Return best by heatmap
-  return heatmap[0][0];
+  return total;
 }
 
-function doAI(){
-  const mv=aiPick();
-  $('tb').style.transform='scaleX(1)';
-  setTimeout(()=>{$('tb').style.transform='scaleX(0)';place(mv,'O');if(!checkEnd()){turn='X';upd();}},80);
+Ch ROTHANAK, [5/6/2026 10:37 PM]
+function getLineData(idx, dr, dc, p) {
+  let r = Math.floor(idx / N), c = idx % N;
+  let count = 1, blocks = 0;
+  for (let i = 1; i < 5; i++) {
+    let nr = r + dr * i, nc = c + dc * i;
+    if (nr < 0  nr >= N  nc < 0 || nc >= N) { blocks++; break; }
+    if (grid[nr * N + nc] === p) count++;
+    else if (grid[nr * N + nc] === EMPTY) break;
+    else { blocks++; break; }
+  }
+  for (let i = 1; i < 5; i++) {
+    let nr = r - dr * i, nc = c - dc * i;
+    if (nr < 0  nr >= N  nc < 0 || nc >= N) { blocks++; break; }
+    if (grid[nr * N + nc] === p) count++;
+    else if (grid[nr * N + nc] === EMPTY) break;
+    else { blocks++; break; }
+  }
+  return { count, blocks };
 }
 
-$('rbtn').addEventListener('click',newGame);
-$('zbtn').addEventListener('click',fitBoard);
-window.addEventListener('resize',fitBoard);
-newGame();
+function scoreLine(count, blocks) {
+  if (count >= 5) return WEIGHTS.FIVE;
+  if (blocks === 2) return 0;
+  if (count === 4) return blocks === 0 ? WEIGHTS.FOUR_OPEN : WEIGHTS.FOUR_BLOCKED;
+  if (count === 3) return blocks === 0 ? WEIGHTS.THREE_OPEN : WEIGHTS.THREE_BLOCKED;
+  return count * 10;
+}
+
+function visualizeMindMap() {
+  const scores = evaluateFullBoard();
+  const maxScore = Math.max(...scores);
+  const cells = document.querySelectorAll('.cell');
+  cells.forEach((cell, i) => {
+    cell.classList.remove('hint', 'danger');
+    if (grid[i] === EMPTY) {
+      if (scores[i] > maxScore * 0.8) cell.classList.add('danger');
+      else if (scores[i] > maxScore * 0.5) cell.classList.add('hint');
+    }
+  });
+}
+
+function checkWin(idx, p) {
+  const dirs = [[1,0], [0,1], [1,1], [1,-1]];
+  const r = Math.floor(idx / N), c = idx % N;
+  for (let [dr, dc] of dirs) {
+    let count = 1;
+    for (let i = 1; i < 5; i++) {
+      let nr = r + dr * i, nc = c + dc * i;
+      if (nr >= 0 && nr < N && nc >= 0 && nc < N && grid[nr * N + nc] === p) count++;
+      else break;
+    }
+    for (let i = 1; i < 5; i++) {
+      let nr = r - dr * i, nc = c - dc * i;
+      if (nr >= 0 && nr < N && nc >= 0 && nc < N && grid[nr * N + nc] === p) count++;
+      else break;
+    }
+    if (count >= WIN) return true;
+  }
+  return false;
+}
+
+function endGame(msg) {
+  gameOver = true;
+  document.getElementById('status').textContent = "OFFLINE";
+  addLog(msg);
+}
+
+function resetGame() {
+  initBoard();
+}
+
+initBoard();
 </script>
 </body>
 </html>
