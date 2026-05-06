@@ -27,7 +27,8 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    overflow: hidden;
+    overflow-x: hidden;
+    padding: 10px;
   }
 
   /* Cyberpunk HUD Decor */
@@ -41,34 +42,38 @@
     z-index: 10;
   }
 
+  .header { 
+    margin-bottom: 20px; 
+    text-align: center; 
+    width: 100%; 
+    max-width: 900px;
+  }
+  
+  h1 { 
+    margin: 0; 
+    font-family: 'Orbitron', sans-serif; 
+    font-size: 28px; 
+    text-shadow: 0 0 10px var(--accent); 
+    color: var(--accent);
+  }
+
+  .subtitle {
+    color: #64748b;
+    font-size: 14px;
+    margin-top: 5px;
+  }
+
   .main-container {
     display: flex;
-    gap: 30px;
+    gap: 20px;
     padding: 20px;
     backdrop-filter: blur(10px);
     z-index: 5;
     flex-wrap: wrap;
     justify-content: center;
+    max-width: 1200px;
+    width: 100%;
   }
-
-  /* Left Panel: Stats */
-  .side-panel {
-    width: 220px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .stat-card {
-    background: var(--panel);
-    border: 1px solid var(--glass);
-    padding: 15px;
-    border-left: 4px solid var(--accent);
-    border-radius: 4px;
-  }
-
-  .stat-label { font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
-  .stat-value { font-size: 20px; font-weight: bold; font-family: 'Orbitron', sans-serif; }
 
   /* Board Styling */
   #board {
@@ -80,8 +85,9 @@
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 8px;
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
-    width: min(600px, 90vw);
-    height: min(600px, 90vw);
+    width: min(500px, 90vw);
+    height: min(500px, 90vw);
+    flex-shrink: 0;
   }
 
   .cell {
@@ -117,77 +123,195 @@
   .cell.danger { box-shadow: inset 0 0 10px rgba(239, 68, 68, 0.6); background: rgba(127, 29, 29, 0.2); }
   .cell.hint { box-shadow: inset 0 0 10px rgba(34, 197, 94, 0.3); }
 
-  .header { margin-bottom: 20px; text-align: left; width: 100%; max-width: 850px; }
-  h1 { 
-    margin: 0; font-family: 'Orbitron', sans-serif; font-size: 28px; 
-    text-shadow: 0 0 10px var(--accent); color: var(--accent);
+  /* Right Panel: Stats & Log */
+  .right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 250px;
+    min-height: 500px;
   }
 
-  .controls { margin-top: 20px; display: flex; gap: 15px; flex-wrap: wrap; }
+  .stat-card {
+    background: var(--panel);
+    border: 1px solid var(--glass);
+    padding: 15px;
+    border-left: 4px solid var(--accent);
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .stat-label { font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+  .stat-value { font-size: 20px; font-weight: bold; font-family: 'Orbitron', sans-serif; margin-top: 8px; }
+
+  .log-container {
+    background: var(--panel);
+    border: 1px solid var(--glass);
+    padding: 12px;
+    border-left: 4px solid var(--accent);
+    border-radius: 4px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 250px;
+  }
+
+  .log-label { 
+    font-size: 12px; 
+    color: var(--accent); 
+    text-transform: uppercase; 
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  #log {
+    flex-grow: 1;
+    background: rgba(0,0,0,0.5);
+    padding: 8px;
+    font-size: 11px;
+    overflow-y: auto;
+    font-family: monospace;
+    color: #94a3b8;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 3px;
+  }
+
+  #log div {
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+
+  .controls { 
+    display: flex; 
+    gap: 10px; 
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
   button {
     background: transparent;
     border: 1px solid var(--accent);
     color: var(--accent);
-    padding: 10px 25px;
+    padding: 8px 16px;
     font-family: 'Orbitron', sans-serif;
-    font-size: 12px;
+    font-size: 11px;
     cursor: pointer;
     transition: 0.3s;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
+    border-radius: 3px;
+    flex: 1;
+    min-width: 100px;
   }
-  button:hover { background: var(--accent); color: white; box-shadow: 0 0 20px var(--accent); }
-
-  #log {
-    height: 150px;
-    background: rgba(0,0,0,0.3);
-    padding: 10px;
-    font-size: 12px;
-    overflow-y: auto;
-    font-family: monospace;
-    color: #94a3b8;
-    border: 1px solid var(--glass);
+  
+  button:hover { 
+    background: var(--accent); 
+    color: white; 
+    box-shadow: 0 0 20px var(--accent); 
   }
 
-  @media (max-width: 768px) {
+  /* Tablet */
+  @media (max-width: 900px) {
     .main-container {
       flex-direction: column;
       gap: 15px;
     }
-    .side-panel {
+    
+    .right-panel {
       width: 100%;
+      min-height: auto;
     }
+
+    #board {
+      margin: 0 auto;
+    }
+  }
+
+  /* Mobile */
+  @media (max-width: 600px) {
     h1 {
       font-size: 20px;
     }
+
+    .subtitle {
+      font-size: 12px;
+    }
+
+    #board {
+      width: min(400px, 95vw);
+      height: min(400px, 95vw);
+      padding: 8px;
+      gap: 2px;
+    }
+
+    .right-panel {
+      width: min(100%, 400px);
+    }
+
+    .stat-card {
+      padding: 12px;
+    }
+
+    .log-container {
+      min-height: 200px;
+    }
+
+    button {
+      font-size: 10px;
+      padding: 6px 12px;
+    }
+  }
+
+  /* Scrollbar styling */
+  #log::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  #log::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.3);
+    border-radius: 3px;
+  }
+
+  #log::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 3px;
+  }
+
+  #log::-webkit-scrollbar-thumb:hover {
+    background: #07d9e8;
   }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>NEURAL NET: CORE_GOMOKU_v4.2</h1>
-  <div style="color: #64748b; font-size: 14px;">QUANTUM THREAT DETECTION ACTIVE</div>
+  <h1>⚡ NEURAL NET: GOMOKU v4.2</h1>
+  <div class="subtitle">QUANTUM THREAT DETECTION ACTIVE</div>
 </div>
 
 <div class="main-container">
-  <div class="side-panel">
+  <div id="board"></div>
+  
+  <div class="right-panel">
     <div class="stat-card">
       <div class="stat-label">System Status</div>
       <div class="stat-value" id="status" style="color: var(--player);">ONLINE</div>
     </div>
+
     <div class="stat-card">
       <div class="stat-label">AI Logic Load</div>
-      <div class="stat-value" id="ai-load">0.00%</div>
+      <div class="stat-value" id="ai-load">0.00ms</div>
     </div>
-    <div class="stat-card" style="flex-grow: 1;">
-      <div class="stat-label">Action Log</div>
+
+    <div class="log-container">
+      <div class="log-label">Action Log</div>
       <div id="log"></div>
     </div>
-    <button onclick="resetGame()">System Reset</button>
-  </div>
 
-  <div id="board"></div>
+    <div class="controls">
+      <button onclick="resetGame()">🔄 Reset Game</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -218,12 +342,14 @@ function initBoard() {
     boardEl.appendChild(cell);
   }
   gameOver = false;
-  addLog("Neural Link established...");
+  addLog("🟢 Neural Link established...");
 }
 
 function addLog(msg) {
   const log = document.getElementById('log');
-  log.innerHTML += `<div>${msg}</div>`;
+  const logEntry = document.createElement('div');
+  logEntry.textContent = msg;
+  log.appendChild(logEntry);
   log.scrollTop = log.scrollHeight;
 }
 
@@ -231,7 +357,7 @@ function playerMove(idx) {
   if (grid[idx] !== EMPTY || gameOver) return;
   
   makeMove(idx, PLAYER);
-  if (checkWin(idx, PLAYER)) return endGame("CRITICAL FAILURE: AI LOST");
+  if (checkWin(idx, PLAYER)) return endGame("✅ CRITICAL FAILURE: AI LOST");
   
   document.getElementById('status').textContent = "CALCULATING";
   document.getElementById('status').style.color = "var(--ai)";
@@ -248,9 +374,9 @@ function aiTurn() {
   if (gameOver) return;
   const move = getBestMove();
   makeMove(move, AI);
-  addLog(`Counter-move at [${Math.floor(move/N)},${move%N}]`);
+  addLog(`🤖 AI: [${Math.floor(move/N)},${move%N}]`);
   
-  if (checkWin(move, AI)) return endGame("TERMINAL STATE: AI WON");
+  if (checkWin(move, AI)) return endGame("❌ TERMINAL STATE: AI WON");
   
   visualizeMindMap();
   document.getElementById('status').textContent = "WAITING";
@@ -283,7 +409,7 @@ function evaluateFullBoard() {
     if (grid[i] !== EMPTY) continue;
     let aiScore = calculateCellPressure(i, AI);
     let playerScore = calculateCellPressure(i, PLAYER);
-    heatmap[i] = aiScore + (playerScore * 1.3); // High priority on defense
+    heatmap[i] = aiScore + (playerScore * 1.3);
     const r = Math.floor(i / N), c = i % N;
     heatmap[i] += (7 - Math.abs(7 - r)) + (7 - Math.abs(7 - c));
   }
@@ -368,6 +494,7 @@ function endGame(msg) {
 }
 
 function resetGame() {
+  document.getElementById('log').innerHTML = '';
   initBoard();
 }
 
