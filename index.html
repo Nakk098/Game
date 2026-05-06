@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Tic Tac Toe 25×25</title>
+<title>Gomoku 25×25 - Advanced AI</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -22,7 +22,8 @@ body{display:flex;flex-direction:column}
 #vp:active{cursor:grabbing}
 #bt{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
 #board{display:grid;grid-template-columns:repeat(25,28px);gap:2px}
-.cell{width:28px;height:28px;background:#131322;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:1px solid #1c1c30;transition:background .1s;user-select:none}
+.cell{width:28px;height:28px;background:#131322;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:1px solid #1c1c30;transition:background .2s,border-color .2s;cursor:pointer}
+.cell:hover{background:#1c1c35}
 .xc{color:#f43f5e}.oc{color:#06b6d4}
 .lm{border-color:#7c3aed!important}
 .wc{background:#2d1600!important;border-color:#fbbf24!important;animation:wp .6s ease-in-out infinite alternate}
@@ -64,6 +65,7 @@ body{display:flex;flex-direction:column}
 </div>
 <div id="ovl"><div class="rc"><div class="re" id="re"></div><div class="rt" id="rt"></div><div class="rs" id="rs"></div><button class="btn bp" onclick="newGame()">Play Again</button></div></div>
 <div id="tb"></div>
+
 <script>
 const N=25,W=5,CS=28,GP=2,SZ=CS+GP;
 const BP=N*CS+(N-1)*GP;
@@ -149,7 +151,7 @@ function upd(){
   $('smsg').textContent=isX?'Your turn':'AI thinking…';
 }
 
-// ── Touch: pan + pinch zoom ───────────────────────────────────────────────────
+// ── Touch: pan + pinch zoom ──────────────────────────────────────────────────
 let ts=null,pd=0,pm=null,dragged=false;
 const vp=$('vp');
 
@@ -198,14 +200,13 @@ vp.addEventListener('touchend',e=>{
   if(e.touches.length===0){ts=null;pd=0;}
 });
 
-// ── Mouse support ─────────────────────────────────────────────────────────────
 let mst=null,mdr=false;
 vp.addEventListener('mousedown',e=>{mst={x:e.clientX,y:e.clientY};mdr=false;});
 vp.addEventListener('mousemove',e=>{if(!mst)return;if(!mdr&&Math.hypot(e.clientX-mst.x,e.clientY-mst.y)>5)mdr=true;if(mdr){panX+=e.movementX;panY+=e.movementY;applyT();}});
 vp.addEventListener('mouseup',e=>{if(!mdr&&mst)hMove(coordToCell(e.clientX,e.clientY));mst=null;});
-vp.addEventListener('wheel',e=>{e.preventDefault();const nz=Math.max(.2,Math.min(5,zoom*(1-e.deltaY*.001)));const r=vp.getBoundingClientRect();const ox=e.clientX-r.left,oy=e.clientY-r.top;panX=ox-(ox-panX)*nz/zoom;panY=oy-(oy-panY)*nz/zoom;zoom=nz;applyT();},{passive:false});
+vp.addEventListener('wheel',e=>{e.preventDefault();const nz=Math.max(.2,Math.min(5,zoom*(1-e.deltaY*.001)));const r=vp.getBoundingClientRect();const ox=e.clientX-r.left,oy=e.clientY-r.top;panX=ox-(ox-panX)*nz/zoom;panY=oy-(oy-panY)*nz/zoom;zoom=nz;applyT();});
 
-// ── Human move ────────────────────────────────────────────────────────────────
+// ── Human move ──────────────────────────────────────────────────────────────
 function hMove(i){
   if(over||turn!=='X'||i<0||board[i])return;
   if(navigator.vibrate)navigator.vibrate(30);
@@ -215,9 +216,12 @@ function hMove(i){
   setTimeout(doAI,ri(100,300));
 }
 
-// ── ADVANCED AI ───────────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════ ADVANCED AI ENGINE ══════════════════════════════════
+// ════════════════════════════════════════════════════════════════════════════
+// STRICT DEFENSIVE-FIRST, TRAP-AWARE, NEVER-LOSE SYSTEM
 
-// --- 1. LINE DATA: count consecutive pieces + blocked ends in one direction ---
+// 1. GET LINE DATA: Count consecutive + blocked ends in one direction
 function getLineData(idx,dr,dc,player){
   const r0=Math.floor(idx/N),c0=idx%N;
   let count=1,blocks=0;
@@ -240,17 +244,17 @@ function getLineData(idx,dr,dc,player){
   return{count,blocks};
 }
 
-// --- 2. SCORE LINE: blocks-based scoring (force early blocking) ---
+// 2. SCORE LINE: Blocks-based scoring (strictest 2-in-a-row block)
 function scoreLine(count,blocks){
   if(count>=5)return 1000000;
-  if(blocks===2)return 0;
+  if(blocks===2)return 0; // fully blocked
   if(count===4)return blocks===0?80000:10000;
   if(count===3)return blocks===0?15000:2000;
-  if(count===2)return blocks===0?5000:800; // 🚨 strict 2-in-a-row block
+  if(count===2)return blocks===0?5000:800; // 🚨 STRICT 2-IN-A-ROW BLOCK
   return 0;
 }
 
-// --- 3. CELL PRESSURE: total threat score for a player at a position ---
+// 3. CELL PRESSURE: Total threat score for player at position
 function calcPressure(idx,player){
   board[idx]=player;
   let score=0;
@@ -262,7 +266,7 @@ function calcPressure(idx,player){
   return score;
 }
 
-// --- 4. WINDOW SCORING for evalAt (split-pattern aware) ---
+// 4. WINDOW SCORING: Split-pattern aware evaluation
 function windowScore(cells,p){
   let cnt=0,open=0,pos=[];
   for(let k=0;k<cells.length;k++){
@@ -281,7 +285,7 @@ function windowScore(cells,p){
   return 0;
 }
 
-// --- 5. EVAL AT: window-based full eval (for quick scoring) ---
+// 5. EVAL AT: Window-based full evaluation
 function evalAt(pos,p){
   board[pos]=p;let score=0;
   const r0=Math.floor(pos/N),c0=pos%N;
@@ -299,7 +303,7 @@ function evalAt(pos,p){
   board[pos]=null;return score;
 }
 
-// --- 6. CANDIDATE CELLS (within radius 2 of any placed piece) ---
+// 6. CANDIDATE CELLS: Cells within radius 2 of any placed piece
 function cands(){
   const s=new Set();
   for(let i=0;i<N*N;i++){
@@ -314,7 +318,7 @@ function cands(){
   return[...s];
 }
 
-// --- 7. FORK DETECTION: player creates 2+ open threats at this cell ---
+// 7. TRAP DETECTION: Player creates 2+ separate threats (fork)
 function createsPlayerFork(idx){
   board[idx]='X';
   let threatCount=0;
@@ -326,7 +330,7 @@ function createsPlayerFork(idx){
   return threatCount>=2;
 }
 
-// --- 8. DANGEROUS MOVE: placing AI here lets player fork nearby ---
+// 8. DANGEROUS MOVE: Placing AI here allows player to fork nearby
 function isDangerousMove(idx){
   board[idx]='O';
   let dangerous=false;
@@ -342,32 +346,32 @@ function isDangerousMove(idx){
   return dangerous;
 }
 
-// --- 9. COUNT DISTINCT FORK DIRECTIONS ---
-function forkDirs(pos,p){
-  board[pos]=p;
-  const dirs=new Set();
-  const r0=Math.floor(pos/N),c0=pos%N;
-  for(let d=0;d<DIRS.length;d++){
-    const [dr,dc]=DIRS[d];
+// 9. DETECT SPLIT PATTERNS: X_X type threats
+function hasSplitPattern(idx,player){
+  board[idx]=player;
+  let hasSplit=false;
+  const r0=Math.floor(idx/N),c0=idx%N;
+  for(const [dr,dc]of DIRS){
     for(let s=-(W-1);s<=0;s++){
-      let cnt=0,open=0,ok=true;
+      let pattern='';let ok=true;
       for(let k=s;k<s+W;k++){
         const r=r0+dr*k,c=c0+dc*k;
         if(r<0||r>=N||c<0||c>=N){ok=false;break;}
         const v=board[IX(r,c)];
-        if(v===p)cnt++;else if(!v)open++;else{ok=false;break;}
+        pattern+=v===player?'X':v?'B':'_';
       }
-      if(ok&&cnt>=3&&open>=1)dirs.add(d);
+      if(ok&&(pattern.includes('X_X')||pattern.includes('X__X')))hasSplit=true;
     }
   }
-  board[pos]=null;return dirs.size;
+  board[idx]=null;
+  return hasSplit;
 }
 
-// --- 10. SAFE-MOVE FILTER ---
-function isSafe(pos){
-  board[pos]='O';
+// 10. LOOKAHEAD SAFETY: Ensure 1-2 moves ahead AI can block
+function isSafeMove(idx){
+  board[idx]='O';
   let safe=true;
-  const r0=Math.floor(pos/N),c0=pos%N;
+  const r0=Math.floor(idx/N),c0=idx%N;
   outer:for(let dr=-4;dr<=4;dr++)for(let dc=-4;dc<=4;dc++){
     const nr=r0+dr,nc=c0+dc;
     if(nr<0||nr>=N||nc<0||nc>=N)continue;
@@ -377,62 +381,107 @@ function isSafe(pos){
     if(winOf(ni,'X')){safe=false;board[ni]=null;break outer;}
     board[ni]=null;
   }
-  board[pos]=null;return safe;
+  board[idx]=null;
+  return safe;
 }
 
-// --- 11. FULL BOARD EVALUATION HEATMAP (defense dominant) ---
+// 11. FULL BOARD EVALUATION: Calculate FINAL_SCORE for all cells
 function evaluateFullBoard(cl){
   const heatmap=[];
   for(const i of cl){
+    // AI_POWER_SCORE
     const aiScore=calcPressure(i,'O');
+    
+    // PLAYER_THREAT_SCORE (DEFENSE 2.5× multiplier)
     const playerScore=calcPressure(i,'X');
-    // Defense priority: player threat weighted 2.5×
-    let h=aiScore+playerScore*2.5;
-    // Trap penalties
-    if(createsPlayerFork(i))h-=20000;
-    if(isDangerousMove(i))h-=30000;
-    // Center control bonus
+    
+    let finalScore=aiScore+(playerScore*2.5);
+    
+    // CENTER_BONUS: Closer to center = higher score
     const r=Math.floor(i/N),c=i%N;
-    h+=(N/2-Math.abs(N/2-r))+(N/2-Math.abs(N/2-c));
+    const distFromCenter=Math.abs(N/2-r)+Math.abs(N/2-c);
+    const centerBonus=(N/2-distFromCenter)*1.2;
+    finalScore+=centerBonus;
+    
+    // TRAP_PENALTY: Split patterns or fork risk
+    if(createsPlayerFork(i))finalScore-=30000;
+    if(isDangerousMove(i))finalScore-=40000;
+    if(hasSplitPattern(i,'X'))finalScore-=20000;
+    
     // Per-game noise
-    h+=(Math.random()*2-1)*P.noise;
-    heatmap.push([i,h]);
+    finalScore+=(Math.random()*2-1)*P.noise;
+    
+    heatmap.push([i,finalScore]);
   }
   return heatmap;
 }
 
-// --- 12. BEST MOVE SELECTION (25% random tie-breaking) ---
-function getBestMove(heatmap){
-  let best=-Infinity,move=-1;
-  for(const [i,s]of heatmap){
-    if(s>best||(s===best&&Math.random()<0.25)){best=s;move=i;}
-  }
-  return move;
-}
-
-// --- 13. MAIN AI PICKER (strict priority cascade) ---
+// 12. MAIN AI PICKER: Strict priority cascade
 function aiPick(){
   const cl=cands();
   if(cl.length===1)return cl[0];
 
-  // P1: AI wins immediately
-  for(const i of cl){board[i]='O';const w=winOf(i,'O');board[i]=null;if(w)return i;}
+  // ───────────────────────────────────────────────────────────────────────────
+  // PRIORITY 1: AI WINS IMMEDIATELY
+  // ───────────────────────────────────────────────────────────────────────────
+  for(const i of cl){
+    board[i]='O';
+    const w=winOf(i,'O');
+    board[i]=null;
+    if(w)return i;
+  }
 
-  // P2: Block player immediate win (5-in-a-row)
-  for(const i of cl){board[i]='X';const w=winOf(i,'X');board[i]=null;if(w)return i;}
+  // ───────────────────────────────────────────────────────────────────────────
+  // PRIORITY 2: BLOCK PLAYER IMMEDIATE WIN (5-in-a-row)
+  // ───────────────────────────────────────────────────────────────────────────
+  for(const i of cl){
+    board[i]='X';
+    const w=winOf(i,'X');
+    board[i]=null;
+    if(w)return i;
+  }
 
-  // P3: Block open-4 (player guaranteed win next turn)
-  const b4=cl.filter(i=>evalAt(i,'X')>=8e6);
-  if(b4.length){b4.sort((a,b)=>calcPressure(b,'O')-calcPressure(a,'O'));return b4[0];}
+  // ───────────────────────────────────────────────────────────────────────────
+  // PRIORITY 3: BLOCK OPEN-4 (Player guaranteed win next turn)
+  // ───────────────────────────────────────────────────────────────────────────
+  const blockOpen4=cl.filter(i=>evalAt(i,'X')>=8e6);
+  if(blockOpen4.length){
+    blockOpen4.sort((a,b)=>calcPressure(b,'O')-calcPressure(a,'O'));
+    return blockOpen4[0];
+  }
 
-  // P4: Full heatmap evaluation
+  // ───────────────────────────────────────────────────────────────────────────
+  // PRIORITY 4: BLOCK STRICT 2-IN-A-ROW IMMEDIATELY
+  // 🚨 RULE: If player has ANY X X or X_X pattern, AI MUST block instantly
+  // ───────────────────────────────────────────────────────────────────────────
+  let strictBlock=-1;
+  let maxBlockScore=-Infinity;
+  for(const i of cl){
+    board[i]='X';
+    for(const [dr,dc]of DIRS){
+      const ld=getLineData(i,dr,dc,'X');
+      if(ld.count===2&&ld.blocks<2){
+        const blockScore=calcPressure(i,'X');
+        if(blockScore>maxBlockScore){
+          maxBlockScore=blockScore;
+          strictBlock=i;
+        }
+      }
+    }
+    board[i]=null;
+  }
+  if(strictBlock>=0)return strictBlock;
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // PRIORITY 5: FULL BOARD HEATMAP EVALUATION
+  // ───────────────────────────────────────────────────────────────────────────
   const heatmap=evaluateFullBoard(cl);
   heatmap.sort((a,b)=>b[1]-a[1]);
 
-  // Safe-move filter: skip moves that hand X a free win
+  // Safe-move filter: Ensure AI move doesn't hand player a free win
   for(let t=0;t<Math.min(8,heatmap.length);t++){
     const [mv]=heatmap[t];
-    if(isSafe(mv)){
+    if(isSafeMove(mv)){
       // Occasional randomness: pick from top 5 near-equal moves
       if(t===0&&Math.random()<P.rnd&&heatmap.length>4){
         const top=heatmap[0][1];
@@ -442,11 +491,10 @@ function aiPick(){
       return mv;
     }
   }
-  // Fallback: best by heatmap
-  return getBestMove(heatmap);
+
+  // Fallback: Return best by heatmap
+  return heatmap[0][0];
 }
-
-
 
 function doAI(){
   const mv=aiPick();
