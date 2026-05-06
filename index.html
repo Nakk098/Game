@@ -47,6 +47,8 @@
     padding: 20px;
     backdrop-filter: blur(10px);
     z-index: 5;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   /* Left Panel: Stats */
@@ -78,8 +80,8 @@
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 8px;
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
-    width: 600px;
-    height: 600px;
+    width: min(600px, 90vw);
+    height: min(600px, 90vw);
   }
 
   .cell {
@@ -121,7 +123,7 @@
     text-shadow: 0 0 10px var(--accent); color: var(--accent);
   }
 
-  .controls { margin-top: 20px; display: flex; gap: 15px; }
+  .controls { margin-top: 20px; display: flex; gap: 15px; flex-wrap: wrap; }
   button {
     background: transparent;
     border: 1px solid var(--accent);
@@ -136,8 +138,7 @@
   }
   button:hover { background: var(--accent); color: white; box-shadow: 0 0 20px var(--accent); }
 
-Ch ROTHANAK, [5/6/2026 10:37 PM]
-#log {
+  #log {
     height: 150px;
     background: rgba(0,0,0,0.3);
     padding: 10px;
@@ -146,6 +147,19 @@ Ch ROTHANAK, [5/6/2026 10:37 PM]
     font-family: monospace;
     color: #94a3b8;
     border: 1px solid var(--glass);
+  }
+
+  @media (max-width: 768px) {
+    .main-container {
+      flex-direction: column;
+      gap: 15px;
+    }
+    .side-panel {
+      width: 100%;
+    }
+    h1 {
+      font-size: 20px;
+    }
   }
 </style>
 </head>
@@ -209,7 +223,7 @@ function initBoard() {
 
 function addLog(msg) {
   const log = document.getElementById('log');
-  log.innerHTML += <div>> ${msg}</div>;
+  log.innerHTML += `<div>${msg}</div>`;
   log.scrollTop = log.scrollHeight;
 }
 
@@ -234,7 +248,7 @@ function aiTurn() {
   if (gameOver) return;
   const move = getBestMove();
   makeMove(move, AI);
-  addLog(Counter-move at [${Math.floor(move/N)},${move%N}]);
+  addLog(`Counter-move at [${Math.floor(move/N)},${move%N}]`);
   
   if (checkWin(move, AI)) return endGame("TERMINAL STATE: AI WON");
   
@@ -286,20 +300,19 @@ function calculateCellPressure(idx, p) {
   return total;
 }
 
-Ch ROTHANAK, [5/6/2026 10:37 PM]
 function getLineData(idx, dr, dc, p) {
   let r = Math.floor(idx / N), c = idx % N;
   let count = 1, blocks = 0;
   for (let i = 1; i < 5; i++) {
     let nr = r + dr * i, nc = c + dc * i;
-    if (nr < 0  nr >= N  nc < 0 || nc >= N) { blocks++; break; }
+    if (nr < 0 || nr >= N || nc < 0 || nc >= N) { blocks++; break; }
     if (grid[nr * N + nc] === p) count++;
     else if (grid[nr * N + nc] === EMPTY) break;
     else { blocks++; break; }
   }
   for (let i = 1; i < 5; i++) {
     let nr = r - dr * i, nc = c - dc * i;
-    if (nr < 0  nr >= N  nc < 0 || nc >= N) { blocks++; break; }
+    if (nr < 0 || nr >= N || nc < 0 || nc >= N) { blocks++; break; }
     if (grid[nr * N + nc] === p) count++;
     else if (grid[nr * N + nc] === EMPTY) break;
     else { blocks++; break; }
